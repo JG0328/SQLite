@@ -61,17 +61,19 @@ public class ProductsFragment extends Fragment {
 
         Bundle bundle = this.getArguments();
 
-        productId = Long.parseLong(bundle.getString("id"));
+        if (bundle != null) {
+            productId = Long.parseLong(bundle.getString("id"));
 
-        txtName.setText(bundle.getString("name"));
-        txtPrice.setText(bundle.getString("price"));
-        spnCategory.post(() -> spnCategory.setSelection(arrayAdapter.getPosition(bundle.getString("categoryName"))));
+            txtName.setText(bundle.getString("name"));
+            txtPrice.setText(bundle.getString("price"));
+            spnCategory.post(() -> spnCategory.setSelection(arrayAdapter.getPosition(bundle.getString("categoryName"))));
 
-        btnSave.setVisibility(View.GONE);
+            btnSave.setVisibility(View.GONE);
 
-        // Now delete and update are visible
-        btnDelete.setVisibility(View.VISIBLE);
-        btnUpdate.setVisibility(View.VISIBLE);
+            // Now delete and update are visible
+            btnDelete.setVisibility(View.VISIBLE);
+            btnUpdate.setVisibility(View.VISIBLE);
+        }
 
         btnAdd.setOnClickListener(view1 -> {
             getFragmentManager().beginTransaction().replace(R.id.main_fragment, new CategoriesFragment()).addToBackStack("categories").commit();
@@ -79,12 +81,12 @@ public class ProductsFragment extends Fragment {
 
         btnSave.setOnClickListener(view1 -> {
             String name = txtName.getText().toString();
-            float price = Float.parseFloat(txtPrice.getText().toString());
             String categoryName = lsCategories.size() > 0 ? spnCategory.getSelectedItem().toString() : "";
 
-            if (name.trim().length() == 0 || categoryName == "") {
+            if (name.trim().length() == 0 || categoryName == "" || txtPrice.getText().toString().trim().length() == 0) {
                 Toast.makeText(getContext(), "All fields must be filled", Toast.LENGTH_SHORT).show();
             } else {
+                float price = Float.parseFloat(txtPrice.getText().toString());
                 databaseService.createProduct(name, price, categoryName);
                 Toast.makeText(getContext(), "Product created", Toast.LENGTH_SHORT).show();
 
@@ -94,12 +96,12 @@ public class ProductsFragment extends Fragment {
 
         btnUpdate.setOnClickListener(view1 -> {
             String name = txtName.getText().toString();
-            float price = Float.parseFloat(txtPrice.getText().toString());
             String categoryName = lsCategories.size() > 0 ? spnCategory.getSelectedItem().toString() : "";
 
-            if (name.trim().length() == 0 || categoryName == "") {
+            if (name.trim().length() == 0 || categoryName == "" || txtPrice.getText().toString().trim().length() == 0) {
                 Toast.makeText(getContext(), "All fields must be filled", Toast.LENGTH_SHORT).show();
             } else {
+                float price = Float.parseFloat(txtPrice.getText().toString());
                 databaseService.updateProduct(productId, name, price, categoryName);
                 Toast.makeText(getContext(), "Product updated", Toast.LENGTH_SHORT).show();
 

@@ -40,10 +40,10 @@ public class ProductsListFragment extends Fragment {
         listView.setAdapter(simpleCursorAdapter);
 
         listView.setOnItemClickListener((adapterView, view1, i, l) -> {
-            TextView productId = view.findViewById(R.id.product_id);
-            TextView productName = view.findViewById(R.id.product_name);
-            TextView productPrice = view.findViewById(R.id.product_price);
-            TextView productCategoryName = view.findViewById(R.id.product_category);
+            TextView productId = view1.findViewById(R.id.product_id);
+            TextView productName = view1.findViewById(R.id.product_name);
+            TextView productPrice = view1.findViewById(R.id.product_price);
+            TextView productCategoryName = view1.findViewById(R.id.product_category);
 
             ProductsFragment productsFragment = new ProductsFragment();
 
