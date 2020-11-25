@@ -1,5 +1,6 @@
 package com.pucmm.sqlite;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -7,58 +8,115 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ProductsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.pucmm.sqlite.Services.DatabaseService;
+
+import java.util.List;
+
+
 public class ProductsFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    EditText txtName, txtPrice;
+    Spinner spnCategory;
+    ArrayAdapter<String> arrayAdapter;
+    List<String> lsCategories;
+    Button btnAdd, btnDelete, btnUpdate, btnSave;
+    DatabaseService databaseService;
+    long productId;
 
     public ProductsFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ProductsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ProductsFragment newInstance(String param1, String param2) {
-        ProductsFragment fragment = new ProductsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_products, container, false);
+        if (container != null) {
+            container.removeAllViews();
+        }
+
+        View view = inflater.inflate(R.layout.fragment_products, container, false);
+
+        txtName = view.findViewById(R.id.txt_name);
+        txtPrice = view.findViewById(R.id.txt_price);
+        btnAdd = view.findViewById(R.id.btn_add);
+        btnUpdate = view.findViewById(R.id.btn_update);
+        btnDelete = view.findViewById(R.id.btn_delete);
+        btnSave = view.findViewById(R.id.btn_save);
+
+        spnCategory = view.findViewById(R.id.spn_category);
+
+        DatabaseService databaseService = new DatabaseService(getContext());
+
+        // Setting up categories spinner
+        lsCategories = databaseService.getCategories();
+        arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, lsCategories);
+        arrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        spnCategory.setAdapter(arrayAdapter);
+
+        Bundle bundle = this.getArguments();
+
+        productId = Long.parseLong(bundle.getString("id"));
+
+        txtName.setText(bundle.getString("name"));
+        txtPrice.setText(bundle.getString("price"));
+        spnCategory.post(() -> spnCategory.setSelection(arrayAdapter.getPosition(bundle.getString("categoryName"))));
+
+        btnSave.setVisibility(View.GONE);
+
+        // Now delete and update are visible
+        btnDelete.setVisibility(View.VISIBLE);
+        btnUpdate.setVisibility(View.VISIBLE);
+
+        btnAdd.setOnClickListener(view1 -> {
+            getFragmentManager().beginTransaction().replace(R.id.main_fragment, new CategoriesFragment()).addToBackStack("categories").commit();
+        });
+
+        btnSave.setOnClickListener(view1 -> {
+            String name = txtName.getText().toString();
+            float price = Float.parseFloat(txtPrice.getText().toString());
+            String categoryName = lsCategories.size() > 0 ? spnCategory.getSelectedItem().toString() : "";
+
+            if (name.trim().length() == 0 || categoryName == "") {
+                Toast.makeText(getContext(), "All fields must be filled", Toast.LENGTH_SHORT).show();
+            } else {
+                databaseService.createProduct(name, price, categoryName);
+                Toast.makeText(getContext(), "Product created", Toast.LENGTH_SHORT).show();
+
+                getFragmentManager().beginTransaction().replace(R.id.main_fragment, new ProductsListFragment(), "list").addToBackStack("list").commit();
+            }
+        });
+
+        btnUpdate.setOnClickListener(view1 -> {
+            String name = txtName.getText().toString();
+            float price = Float.parseFloat(txtPrice.getText().toString());
+            String categoryName = lsCategories.size() > 0 ? spnCategory.getSelectedItem().toString() : "";
+
+            if (name.trim().length() == 0 || categoryName == "") {
+                Toast.makeText(getContext(), "All fields must be filled", Toast.LENGTH_SHORT).show();
+            } else {
+                databaseService.updateProduct(productId, name, price, categoryName);
+                Toast.makeText(getContext(), "Product updated", Toast.LENGTH_SHORT).show();
+
+                getFragmentManager().beginTransaction().replace(R.id.main_fragment, new ProductsListFragment(), "list").addToBackStack("list").commit();
+            }
+        });
+
+        btnDelete.setOnClickListener(view1 -> {
+            new AlertDialog.Builder(getContext()).setTitle("Delete Product").setMessage("Do you want to delete this product?").setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
+                databaseService.deleteProduct(productId);
+                Toast.makeText(getContext(), "Product deleted", Toast.LENGTH_SHORT).show();
+                getFragmentManager().beginTransaction().replace(R.id.main_fragment, new ProductsListFragment(), "list").addToBackStack("list").commit();
+            })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show();
+        });
+
+        return view;
     }
 }

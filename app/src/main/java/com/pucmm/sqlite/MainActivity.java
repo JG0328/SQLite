@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         if(count == 0){
             super.onBackPressed();
         }else{
-            getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment, new ProductsList()).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment, new ProductsListFragment()).commit();
         }
     }
 }

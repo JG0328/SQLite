@@ -28,7 +28,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/price"
-            android:inputType="number" />
+            android:inputType="number"
+            android:text="0"
+            android:textAlignment="textEnd" />
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -40,9 +42,9 @@
             tools:layout_editor_absoluteY="16dp">
 
             <Spinner
-                android:id="@+id/spinner_category"
+                android:id="@+id/spn_category"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginEnd="16dp"
                 android:layout_weight="1" />
 
@@ -78,7 +80,7 @@
                 android:visibility="gone" />
 
             <Button
-                android:id="@+id/btn_remove"
+                android:id="@+id/btn_delete"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

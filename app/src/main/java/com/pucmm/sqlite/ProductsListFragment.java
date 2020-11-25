@@ -14,10 +14,13 @@ import androidx.fragment.app.Fragment;
 
 import com.pucmm.sqlite.Services.DatabaseService;
 
-public class ProductsList extends Fragment {
+public class ProductsListFragment extends Fragment {
     DatabaseService databaseService;
     SimpleCursorAdapter simpleCursorAdapter;
     ListView listView;
+
+    public ProductsListFragment() {
+    }
 
     @Nullable
     @Override
@@ -41,8 +44,26 @@ public class ProductsList extends Fragment {
             TextView productName = view.findViewById(R.id.product_name);
             TextView productPrice = view.findViewById(R.id.product_price);
             TextView productCategoryName = view.findViewById(R.id.product_category);
+
+            ProductsFragment productsFragment = new ProductsFragment();
+
+            Bundle bundle = new Bundle();
+            bundle.putString("id", productId.getText().toString());
+            bundle.putString("name", productName.getText().toString());
+            bundle.putString("categoryName", productCategoryName.getText().toString());
+            bundle.putString("price", productPrice.getText().toString());
+
+            productsFragment.setArguments(bundle);
+            getFragmentManager().beginTransaction().replace(R.id.main_fragment, productsFragment, "products").addToBackStack("products").commit();
         });
 
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        databaseService.closeConnection();
+
+        super.onDestroy();
     }
 }
