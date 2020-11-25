@@ -7,6 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.pucmm.sqlite.Helpers.DatabaseHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DatabaseService {
     DatabaseHelper databaseHelper;
     Context context;
@@ -53,5 +56,32 @@ public class DatabaseService {
         Cursor cursor = database.query("products", new String[]{"_id", "name", "categoryName", "price"}, null, null, null, null, null);
         if (cursor != null) cursor.moveToFirst();
         return cursor;
+    }
+
+    public List<String> getCategories() {
+        openConnection();
+        List<String> list = new ArrayList<>();
+
+        Cursor cursor = databaseHelper.getReadableDatabase().rawQuery("select * from categories", null);
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(cursor.getString(1));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        return list;
+    }
+
+    public void deleteProduct(long _id) {
+        database.delete("products", "_id = " + _id, null);
+    }
+
+    public int updateProduct(long _id, String productName, float productPrice, String categoryName) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("name", productName);
+        contentValues.put("categoryName", categoryName);
+        contentValues.put("price", productPrice);
+        return database.update("products", contentValues, "_id = " + _id, null);
     }
 }
