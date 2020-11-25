@@ -1,64 +1,48 @@
 package com.pucmm.sqlite;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ProductsList#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.pucmm.sqlite.Services.DatabaseService;
+
 public class ProductsList extends Fragment {
+    DatabaseService databaseService;
+    SimpleCursorAdapter simpleCursorAdapter;
+    ListView listView;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public ProductsList() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ProductsList.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ProductsList newInstance(String param1, String param2) {
-        ProductsList fragment = new ProductsList();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        if (container != null) container.removeAllViews();
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_products_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_products_list, container, false);
+
+        listView = view.findViewById(R.id.products_list_view);
+
+        databaseService = new DatabaseService(getContext());
+        databaseService.openConnection();
+
+        simpleCursorAdapter = new SimpleCursorAdapter(getContext(), R.layout.item_list, databaseService.getProducts(), new String[]{"_id", "name", "price", "categoryName"}, new int[]{R.id.product_id, R.id.product_name, R.id.product_price, R.id.product_category}, 0);
+        simpleCursorAdapter.notifyDataSetChanged();
+
+        listView.setAdapter(simpleCursorAdapter);
+
+        listView.setOnItemClickListener((adapterView, view1, i, l) -> {
+            TextView productId = view.findViewById(R.id.product_id);
+            TextView productName = view.findViewById(R.id.product_name);
+            TextView productPrice = view.findViewById(R.id.product_price);
+            TextView productCategoryName = view.findViewById(R.id.product_category);
+        });
+
+        return view;
     }
 }
