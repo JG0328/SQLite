@@ -40,9 +40,9 @@
             tools:layout_editor_absoluteY="16dp">
 
             <Spinner
-                android:id="@+id/spn_category"
+                android:id="@+id/spinner_category"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:layout_weight="1" />
 
